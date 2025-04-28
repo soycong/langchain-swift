@@ -24,10 +24,38 @@ public struct ObjectOutputParser<T: Codable>: BaseOutputParser {
     %@
 """
     
+//    public func parse(text: String) -> Parsed {
+//        do {
+//            if let data = text.data(using: .utf8) {
+//                let r = try JSONDecoder().decode(T.self, from: data)
+//                return Parsed.object(r)
+//            } else {
+//                print("UTF-8 인코딩 실패")
+//                return Parsed.object(demo) // demo 객체를 기본값으로 사용
+//            }
+//        } catch {
+//            print("JSON 파싱 오류: \(error)")
+//            return Parsed.object(demo) // demo 객체를 기본값으로 사용
+//        }
+//    }
+    
     public func parse(text: String) -> Parsed {
-        let r = try! JSONDecoder().decode(T.self, from: text.data(using: .utf8)!)
-        return Parsed.object(r)
+        do {
+            if let data = text.data(using: .utf8) {
+                let r = try JSONDecoder().decode(T.self, from: data)
+                return Parsed.object(r)
+            } else {
+                print("UTF-8 인코딩 실패")
+                // 인코딩 실패 시 에러 반환
+                return Parsed.error
+            }
+        } catch {
+            print("JSON 파싱 오류: \(error)")
+            // 파싱 실패 시 에러 반환
+            return Parsed.error
+        }
     }
+    
     fileprivate func isPrimitive(_ t: String) -> Bool {
         return t == "Int" || t == "String" || t == "Double" || t == "Float" || t == "Bool"
     }
